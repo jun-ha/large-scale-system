@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Article {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long articleId;
 
     @Column(length = 100, nullable = false)
@@ -39,18 +38,6 @@ public class Article {
         LocalDateTime now = LocalDateTime.now();
         return Article.builder()
                 .articleId(articleId)
-                .title(title)
-                .content(content)
-                .boardId(boardId)
-                .writerId(writerId)
-                .createdAt(now)
-                .modifiedAt(now)
-                .build();
-    }
-
-    public static Article create(String title, String content, Long boardId, Long writerId) {
-        LocalDateTime now = LocalDateTime.now();
-        return Article.builder()
                 .title(title)
                 .content(content)
                 .boardId(boardId)

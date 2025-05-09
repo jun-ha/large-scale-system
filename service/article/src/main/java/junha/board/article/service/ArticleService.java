@@ -16,33 +16,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class ArticleService {
 
     private final ArticleRepository articleRepository;
-    private final static Snowflake snowflake = new Snowflake();
+    private final Snowflake snowflake;
 
     @Transactional
     public ArticleResponse create(ArticleCreateRequest request) {
         Article article = articleRepository.save(
                 Article.create(
+                        snowflake.nextId(),
                         request.getTitle(),
                         request.getContent(),
                         request.getBoardId(),
                         request.getWriterId()
                 )
         );
-        try {
-            Thread.sleep(5000);
-            articleRepository.save(
-                    Article.create(
-                            request.getTitle(),
-                            request.getContent(),
-                            request.getBoardId(),
-                            request.getWriterId()
-                    )
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        throw new RuntimeException();
-        //return ArticleResponse.from(article);
+        return ArticleResponse.from(article);
     }
 
     @Transactional
