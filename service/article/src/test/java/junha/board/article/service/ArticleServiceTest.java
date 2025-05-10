@@ -66,7 +66,7 @@ public class ArticleServiceTest {
     }
 
     @Test
-    @DisplayName("존재하는 아티클 ID로 업데이트 요청 시 업데이트가 성공하고 저장된 결과를 응답한다.")
+    @DisplayName("존재하는 아티클 ID로 update 요청 시 update가 성공하고 저장된 결과를 응답한다.")
     public void update_success() {
         //given
         long existingArticleId = 1L;
@@ -107,7 +107,7 @@ public class ArticleServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 아티클 ID로 업데이트 요청 시 예외를 발생시킨다.")
+    @DisplayName("존재하지 않는 아티클 ID로 update 요청 시 예외가 발생한다.")
     public void update_fail() {
         //given
         long invalidArticleId = 999L;
@@ -124,6 +124,55 @@ public class ArticleServiceTest {
 
         //verify
         verify(articleRepository).findById(invalidArticleId);
+    }
+
+    @Test
+    @DisplayName("존재하는 아티클 ID로 read 요청 시 해당 아티클을 응답한다")
+    void read_success() {
+        // given
+        long existingArticleId = 1L;
+        Article existing = Article.create(existingArticleId, "title", "content", 1L, 1L);
+        when(articleRepository.findById(existingArticleId)).thenReturn(Optional.of(existing));
+
+        // when
+        ArticleResponse response = articleService.read(existingArticleId);
+
+        // then
+        assertNotNull(response);
+        assertEquals("title", response.getTitle());
+        assertEquals("content", response.getContent());
+        assertEquals(1L, response.getBoardId());
+        assertEquals(1L, response.getWriterId());
+
+        verify(articleRepository).findById(existingArticleId);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 아티클 ID로 read 요청 시 예외가 발생한다.")
+    void read_fail() {
+        //given
+        long invalidArticleId = 999L;
+        when(articleRepository.findById(invalidArticleId)).thenReturn(Optional.empty());
+
+        //when & then
+        assertThrows(ArticleNotFoundException.class,
+                () -> articleService.read(invalidArticleId));
+
+        //verify
+        verify(articleRepository).findById(invalidArticleId);
+    }
+
+    @Test
+    @DisplayName("delete 요청 시 repository가 해당 ID로 삭제를 수행한다.")
+    void delete() {
+        //given
+        long articleId = 1L;
+
+        //when
+        articleService.delete(articleId);
+
+        //then
+        verify(articleRepository).deleteById(articleId);
     }
 
 }
