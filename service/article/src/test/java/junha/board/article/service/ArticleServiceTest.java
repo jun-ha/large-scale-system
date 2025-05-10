@@ -1,6 +1,7 @@
 package junha.board.article.service;
 
 import junha.board.article.entity.Article;
+import junha.board.article.exception.ArticleNotFoundException;
 import junha.board.article.repository.ArticleRepository;
 import junha.board.article.service.request.ArticleCreateRequest;
 import junha.board.article.service.request.ArticleUpdateRequest;
@@ -16,8 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,7 +66,7 @@ public class ArticleServiceTest {
     }
 
     @Test
-    @DisplayName("존재하는 아티클 ID로 요청 시 업데이트가 성공하고 저장된 결과를 응답한다.")
+    @DisplayName("존재하는 아티클 ID로 업데이트 요청 시 업데이트가 성공하고 저장된 결과를 응답한다.")
     public void update_success() {
         //given
         long existingArticleId = 1L;
@@ -104,6 +104,26 @@ public class ArticleServiceTest {
 
         //verify
         verify(articleRepository).findById(existingArticleId);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 아티클 ID로 업데이트 요청 시 예외를 발생시킨다.")
+    public void update_fail() {
+        //given
+        long invalidArticleId = 999L;
+        ArticleUpdateRequest request = ArticleUpdateRequest.builder()
+                .title("newTitle")
+                .content("newContent")
+                .build();
+
+        when(articleRepository.findById(invalidArticleId)).thenReturn(Optional.empty());
+
+        //when & then
+        assertThrows(ArticleNotFoundException.class,
+                () -> articleService.update(invalidArticleId, request));
+
+        //verify
+        verify(articleRepository).findById(invalidArticleId);
     }
 
 }
